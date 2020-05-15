@@ -26,6 +26,16 @@ Route::group(['prefix' => '/', 'user.', 'namespace' => 'User'], function () {
     Route::get('/register/{query}', 'Auth\RegisterController@showRegistrationForm');
 
     Route::get('home', 'UserController@index')->name('home');
+
+    Route::get('attendance', 'AttendanceController@index')->name('attendance.index');
+    Route::post('attendance', 'AttendanceController@startTimeStore')->name('attendance.startTimeStore');
+    Route::put('attendance/{id}', 'AttendanceController@endTimeStore')->name('attendance.endTimeStore');
+    Route::get('attendance/absent', 'AttendanceController@absentCreate')->name('attendance.absentCreate');
+    Route::post('attendance/absent', 'AttendanceController@absentStore')->name('attendance.absentStore');
+    Route::get('attendance/modify', 'AttendanceController@modifyCreate')->name('attendance.modifyCreate');
+    Route::post('attendance/modify', 'AttendanceController@modifyStore')->name('attendance.modifyStore');
+    Route::get('attendance/mypage', 'AttendanceController@showMypage')->name('attendance.mypage');
+
 });
 
 // 管理者側画面

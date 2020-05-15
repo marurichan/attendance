@@ -13,17 +13,17 @@
     </div>
   </div>
   <div class="button-holder">
-      <a class="button start-btn" id="register-attendance" href=#openModal>出社時間登録</a>
+    <a class="button start-btn" id="register-attendance" href=#openModal>{{ $status }}</a>
   </div>
   <ul class="button-wrap">
     <li>
-      <a class="at-btn absence" href="/attendance/absence">欠席登録</a>
+      <a class="at-btn absence" href="{{ route('attendance.absentCreate') }}">欠席登録</a>
     </li>
     <li>
-      <a class="at-btn modify" href="/attendance/modify">修正申請</a>
+      <a class="at-btn modify" href="{{ route('attendance.modifyCreate') }}">修正申請</a>
     </li>
     <li>
-      <a class="at-btn my-list" href="/attendance/mypage">マイページ</a>
+      <a class="at-btn my-list" href="{{ route('attendance.mypage') }}">マイページ</a>
     </li>
   </ul>
 </div>
@@ -32,13 +32,17 @@
   <div>
     <div class="register-text-wrap"><p>12:38 で出社時間を登録しますか？</p></div>
     <div class="register-btn-wrap">
-      <form>
-        <input id="date-time-target" name="start_time" type="hidden" value="2019-07-03 12:38:41">
-        <input name="user_id" type="hidden" value="4">
-        <input name="date" type="hidden" value="2019-07-03">
+      {!! Form::open(['route' => 'attendance.startTimeStore', 'method' =>'POST']) !!}
+        {!! Form::input('hidden', 'start_time', '2019-07-03 12:38:41', ['id' => 'date-time-target']) !!}
+        <!-- <input id="date-time-target" name="start_time" type="hidden" value="2019-07-03 12:38:41"> -->
+        {!! Form::input('hidden', 'user_id', '4') !!}
+        <!-- <input name="user_id" type="hidden" value="4"> -->
+        {!! Form::input('hidden', 'date', '2019-07-03') !!}
+        <!-- <input name="date" type="hidden" value="2019-07-03"> -->
         <a href="#close" class="cancel-btn">Cancel</a>
-        <input class="yes-btn" type="submit" value="Yes">
-      </form>
+        {!! Form::input('submit', '', 'Yes', ['class' => 'yes-btn']) !!}
+        <!-- <input class="yes-btn" type="submit" value="Yes"> -->
+      {!! Form::close() !!}
     </div>
   </div>
 </div>
