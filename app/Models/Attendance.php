@@ -20,7 +20,7 @@ class Attendance extends Model
         'created_at'
     ];
 
-    protected $date = [
+    protected $dates = [
         'date',
         'start_time',
         'end_time'
@@ -31,5 +31,24 @@ class Attendance extends Model
         return $attendance->where('user_id', Auth::id())
                           ->where('date', $date)
                           ->exists();
+    }
+
+    public static function attendanceSave($input, $existJudgement, $attendance)
+    {
+        if ($existJudgement) {
+            $attendance->where('user_id', $input['user_id'])
+                        ->where('date', $input['date'])
+                        ->first()->fill($input)->save();
+        } else {
+            $attendance->fill($input)->save();
+        }
+    }
+
+    public static function inputUpdate($request)
+    {
+        $input = $request->all();
+        $input['user_id'] = Auth::id();
+        $input['date'] = date('Y-m-d');
+        return $input;
     }
 }

@@ -13,7 +13,13 @@
     </div>
   </div>
   <div class="button-holder">
+  @if ($status === '欠席' || $status === '退社済み')
+    <a class="button disabled" id="register-attendance">{{ $status }}</a>
+  @elseif ($status === '退社時間登録')
+    <a class="button" id="register-attendance" href=#openModal>{{ $status }}</a>
+  @else
     <a class="button start-btn" id="register-attendance" href=#openModal>{{ $status }}</a>
+  @endif
   </div>
   <ul class="button-wrap">
     <li>
@@ -30,22 +36,26 @@
 
 <div id="openModal" class="modalDialog">
   <div>
+  @if ($status === '出社時間登録')
     <div class="register-text-wrap"><p>12:38 で出社時間を登録しますか？</p></div>
     <div class="register-btn-wrap">
-      {!! Form::open(['route' => 'attendance.startTimeStore', 'method' =>'POST']) !!}
+      {!! Form::open(['route' => 'attendance.timeStore', 'method' =>'POST']) !!}
         {!! Form::input('hidden', 'start_time', '2019-07-03 12:38:41', ['id' => 'date-time-target']) !!}
-        <!-- <input id="date-time-target" name="start_time" type="hidden" value="2019-07-03 12:38:41"> -->
-        {!! Form::input('hidden', 'user_id', '4') !!}
-        <!-- <input name="user_id" type="hidden" value="4"> -->
-        {!! Form::input('hidden', 'date', '2019-07-03') !!}
-        <!-- <input name="date" type="hidden" value="2019-07-03"> -->
         <a href="#close" class="cancel-btn">Cancel</a>
         {!! Form::input('submit', '', 'Yes', ['class' => 'yes-btn']) !!}
-        <!-- <input class="yes-btn" type="submit" value="Yes"> -->
       {!! Form::close() !!}
     </div>
+  @else
+    <div class="register-text-wrap"><p>12:38 で退社時間を登録しますか？</p></div>
+    <div class="register-btn-wrap">
+      {!! Form::open(['route' => 'attendance.timeStore', 'method' =>'POST']) !!}
+        {!! Form::input('hidden', 'end_time', '2019-07-03 12:38:41', ['id' => 'date-time-target']) !!}
+        <a href="#close" class="cancel-btn">Cancel</a>
+        {!! Form::input('submit', '', 'Yes', ['class' => 'yes-btn']) !!}
+      {!! Form::close() !!}
+    </div>
+  @endif
   </div>
 </div>
 
 @endsection
-

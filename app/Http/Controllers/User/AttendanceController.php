@@ -20,28 +20,24 @@ class AttendanceController extends Controller
     }
 
     /**
-     * 勤怠登録面覧
+     * 勤怠登録画面表示
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
-
     public function index()
     {
         $status = '出社時間登録';
         $existJudgement = Attendance::existJudgement($this->attendance, date('Y/m/d'));
-        if (!$existJudgement) {
-            $state = '出社時間登録';
-        } else {
-            $hoge = $this->attendance->where('user_id', Auth::id())
-                                     ->where('date', date('Y/m/d'))->first();
-            if ($hoge->absent_content) {
+        if ($existJudgement) {
+            $attendance = $this->attendance->where('user_id', Auth::id())
+                                           ->where('date', date('Y/m/d'))->first();
+            if ($attendance->absent_content) {
                 $status = '欠席';
             } else {
-                if ($hoge->end_time) {
+                if ($attendance->end_time) {
                     $status = '退社済み';
                 } else {
-                    if ($hoge->start_time) {
+                    if ($attendance->start_time) {
                         $status = '退社時間登録';
                     }
                 }
@@ -51,83 +47,85 @@ class AttendanceController extends Controller
     }
 
     /**
-     * 欠席新規作成
+     * 勤怠登録
      *
      * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function timeStore(Request $request)
+    {
+        $input = Attendance::inputUpdate($request);
+        $existJudgement = Attendance::existJudgement($this->attendance, $input['date']);
+        Attendance::attendanceSave($input, $existJudgement, $this->attendance);
+        return redirect()->route('attendance.index');
+    }
+
+    /**
+     * 欠席登録画面表示
+     *
      * @return \Illuminate\View\View
      */
-
     public function absentCreate()
     {   
         return view('user.attendance.absence');
     } 
 
     /**
-     * 欠席登録のバリデーションと保存
+     * 欠席登録
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * @param  \App\Http\Requests\User\AttendanceRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-
     public function absentStore(AttendanceRequest $request)
     {
-        $input = $request->all();
-        $input['user_id'] = Auth::id();
-        $input['date'] = date('Y/m/d');
+        $input = Attendance::inputUpdate($request);
         $existJudgement = Attendance::existJudgement($this->attendance, $input['date']);
-        if ($existJudgement) {
-            $this->attendance->where('user_id', $input['user_id'])
-                             ->where('date', $input['date'])
-                             ->first()->fill($input)->save();
-        } else {
-            $this->attendance->fill($input)->save();
-        }
+        Attendance::attendanceSave($input, $existJudgement, $this->attendance);
         return redirect()->route('attendance.index');
     }
 
     /**
-     * 修正新規作成
+     * 修正申請画面表示
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
-
     public function modifyCreate()
     {
         return view('user.attendance.modify');
     }
 
     /**
-     * 修正登録のバリデーションと保存
+     * 修正登録
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * @param  \App\Http\Requests\User\AttendanceRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-
     public function modifyStore(AttendanceRequest $request)
     {
         $input = $request->all();
         $input['user_id'] = Auth::id();
         $existJudgement = Attendance::existJudgement($this->attendance, $input['date']);
-        if ($existJudgement) {
-            $this->attendance->where('user_id', $input['user_id'])
-                             ->where('date', $input['date'])
-                             ->first()->fill($input)->save();
-        } else {
-            $this->attendance->fill($input)->save();
-        }
+        Attendance::attendanceSave($input, $existJudgement, $this->attendance);
         return redirect()->route('attendance.index');
     }
 
     /**
      * マイページ画面
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
-
     public function showMypage()
     {
-        return view('user.attendance.mypage');
+        $user_id = Auth::id();
+        $attendances = $this->attendance->where('user_id', $user_id)
+                                        ->orderBy('date', 'desc')->get();
+        $end_time_count = $this->attendance->where('user_id', $user_id)
+                                           ->whereNotNull('end_time')
+                                           ->count();
+        $absent_count = $this->attendance->where('user_id', $user_id)
+                                         ->whereNotNull('absent_content')
+                                         ->count();
+        $attendance_count = $end_time_count - $absent_count;
+        return view('user.attendance.mypage', compact('attendances', 'attendance_count'));
     }
 }
