@@ -38,7 +38,7 @@ class Attendance extends Model
         if ($existJudgement) {
             $attendance->where('user_id', $input['user_id'])
                         ->where('date', $input['date'])
-                        ->first()->fill($input)->save();
+                        ->first()->fill($input)->save(); 
         } else {
             $attendance->fill($input)->save();
         }

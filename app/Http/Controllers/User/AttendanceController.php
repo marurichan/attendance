@@ -7,7 +7,7 @@ use App\Http\Requests\User\AttendanceRequest;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
@@ -123,9 +123,18 @@ class AttendanceController extends Controller
                                            ->whereNotNull('end_time')
                                            ->count();
         $absent_count = $this->attendance->where('user_id', $user_id)
+                                         ->whereNotNull('end_time')
                                          ->whereNotNull('absent_content')
                                          ->count();
         $attendance_count = $end_time_count - $absent_count;
-        return view('user.attendance.mypage', compact('attendances', 'attendance_count'));
+        $study_time = 0;
+        foreach ($attendances as $attendance) {
+            if (!$attendance->absent_content) {
+                if ($attendance->end_time) {
+                    $study_time += $attendance->end_time->diffInHours($attendance->start_time);
+                }
+            }
+        }
+        return view('user.attendance.mypage', compact('attendances', 'attendance_count', 'study_time'));
     }
 }
