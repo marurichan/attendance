@@ -46,26 +46,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.' ,'namespace' => 'Admin'], fu
 
     Route::get('/', ['as' => 'home', 'uses' => 'HomeController@index']);
 
-    /*
-     * ----------------------------------------------------------
-     * 静的なページが簡単に確認できるように ClosureでViewを返しています。処理に応じて編集してください。
-     * 尚、このコメントアウトはコード提出の際は削除してください。
-     */
-    Route::get('attendance', function () {
-        return view('admin.attendance.index');
-    });
-    Route::get('attendance/create', function () {
-        return view('admin.attendance.create');
-    });
-    Route::get('attendance/edit', function () {
-        return view('admin.attendance.edit');
-    });
-    Route::get('attendance/user', function () {
-        return view('admin.attendance.user');
-    });
-    /*
-     * ---------------------------------------------------------
-     */
+    Route::get('attendance', 'AttendanceController@index')->name('attendance.index');
+    Route::get('attendance/show/{id}', 'AttendanceController@show')->name('attendance.show');
+    Route::get('attendance/create/{id}', 'AttendanceController@create')->name('attendance.create');
+    Route::get('attendance/edit/{id}', 'AttendanceController@edit')->name('attendance.edit');
+    Route::post('attendance', 'AttendanceController@store')->name('attendance.store');
+    Route::post('attendance/absent', 'AttendanceController@absentStore')->name('attendance.absentStore');
+    Route::put('attendance/{id}', 'AttendanceController@update')->name('attendance.update');
+    Route::put('attendance/{id}/absent', 'AttendanceController@absentUpdate')->name('attendance.absentUpdate');
 
     Route::get('report', function () {
         abort(404);
