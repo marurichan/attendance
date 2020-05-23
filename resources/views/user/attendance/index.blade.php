@@ -37,19 +37,19 @@
 <div id="openModal" class="modalDialog">
   <div>
   @if ($status === '出社時間登録')
-    <div class="register-text-wrap"><p>12:38 で出社時間を登録しますか？</p></div>
+    <div class="register-text-wrap"><p>{{ \Carbon\Carbon::now()->format('H:i') }} で出社時間を登録しますか？</p></div>
     <div class="register-btn-wrap">
       {!! Form::open(['route' => 'attendance.timeStore', 'method' =>'POST']) !!}
-        {!! Form::input('hidden', 'start_time', '2019-07-03 12:38:41', ['id' => 'date-time-target']) !!}
+        {!! Form::input('hidden', 'start_time', \Carbon\Carbon::now(), ['id' => 'date-time-target']) !!}
         <a href="#close" class="cancel-btn">Cancel</a>
         {!! Form::input('submit', '', 'Yes', ['class' => 'yes-btn']) !!}
       {!! Form::close() !!}
     </div>
   @else
-    <div class="register-text-wrap"><p>12:38 で退社時間を登録しますか？</p></div>
+    <div class="register-text-wrap"><p>{{ \Carbon\Carbon::now()->format('H:i') }} で退社時間を登録しますか？</p></div>
     <div class="register-btn-wrap">
       {!! Form::open(['route' => 'attendance.timeStore', 'method' =>'POST']) !!}
-        {!! Form::input('hidden', 'end_time', '2019-07-03 12:38:41', ['id' => 'date-time-target']) !!}
+        {!! Form::input('hidden', 'end_time', \Carbon\Carbon::now(), ['id' => 'date-time-target']) !!}
         <a href="#close" class="cancel-btn">Cancel</a>
         {!! Form::input('submit', '', 'Yes', ['class' => 'yes-btn']) !!}
       {!! Form::close() !!}

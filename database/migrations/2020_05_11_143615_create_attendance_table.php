@@ -15,7 +15,7 @@ class CreateAttendanceTable extends Migration
     {
         Schema::create('attendance', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id');
+            $table->integer('user_id')->unsigned();
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
             $table->text('absent_content')->nullable();

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\AttendanceRequest;
+use App\Http\Requests\User\Attendance\ModifyRequest;
+use App\Http\Requests\User\Attendance\AbsentRequest;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,23 +27,7 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $status = '出社時間登録';
-        $existJudgement = Attendance::existJudgement($this->attendance, date('Y/m/d'));
-        if ($existJudgement) {
-            $attendance = $this->attendance->where('user_id', Auth::id())
-                                           ->where('date', date('Y/m/d'))->first();
-            if ($attendance->absent_content) {
-                $status = '欠席';
-            } else {
-                if ($attendance->end_time) {
-                    $status = '退社済み';
-                } else {
-                    if ($attendance->start_time) {
-                        $status = '退社時間登録';
-                    }
-                }
-            }
-        }
+        $status = $this->attendance->getStatus($this->attendance->existJudgement(today()));
         return view('user.attendance.index', compact('status'));
     }
 
@@ -54,9 +39,9 @@ class AttendanceController extends Controller
      */
     public function timeStore(Request $request)
     {
-        $input = Attendance::inputUpdate($request);
-        $existJudgement = Attendance::existJudgement($this->attendance, $input['date']);
-        Attendance::attendanceSave($input, $existJudgement, $this->attendance);
+        $input = $this->attendance->inputUpdate($request);
+        $existJudgement = $this->attendance->existJudgement($input['date']);
+        $this->attendance->attendanceSave($input, $existJudgement);
         return redirect()->route('attendance.index');
     }
 
@@ -76,11 +61,11 @@ class AttendanceController extends Controller
      * @param  \App\Http\Requests\User\AttendanceRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function absentStore(AttendanceRequest $request)
+    public function absentStore(AbsentRequest $request)
     {
-        $input = Attendance::inputUpdate($request);
-        $existJudgement = Attendance::existJudgement($this->attendance, $input['date']);
-        Attendance::attendanceSave($input, $existJudgement, $this->attendance);
+        $input = $this->attendance->inputUpdate($request);
+        $existJudgement = $this->attendance->existJudgement($input['date']);
+        $this->attendance->attendanceSave($input, $existJudgement);
         return redirect()->route('attendance.index');
     }
 
@@ -100,12 +85,12 @@ class AttendanceController extends Controller
      * @param  \App\Http\Requests\User\AttendanceRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function modifyStore(AttendanceRequest $request)
+    public function modifyStore(ModifyRequest $request)
     {
         $input = $request->all();
         $input['user_id'] = Auth::id();
-        $existJudgement = Attendance::existJudgement($this->attendance, $input['date']);
-        Attendance::attendanceSave($input, $existJudgement, $this->attendance);
+        $existJudgement = $this->attendance->existJudgement($input['date']);
+        $this->attendance->attendanceSave($input, $existJudgement);
         return redirect()->route('attendance.index');
     }
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class Attendance extends Model
 {
@@ -26,29 +27,48 @@ class Attendance extends Model
         'end_time'
     ];
 
-    public static function existJudgement($attendance, $date)
+    public function existJudgement($date)
     {
-        return $attendance->where('user_id', Auth::id())
-                          ->where('date', $date)
-                          ->exists();
+        return $this->where('user_id', Auth::id())
+                    ->where('date', $date)
+                    ->exists();
     }
 
-    public static function attendanceSave($input, $existJudgement, $attendance)
+    public function attendanceSave($input, $existJudgement)
     {
         if ($existJudgement) {
-            $attendance->where('user_id', $input['user_id'])
+            $this->where('user_id', $input['user_id'])
                         ->where('date', $input['date'])
                         ->first()->fill($input)->save(); 
         } else {
-            $attendance->fill($input)->save();
+            $this->fill($input)->save();
         }
     }
 
-    public static function inputUpdate($request)
+    public function inputUpdate($request)
     {
         $input = $request->all();
         $input['user_id'] = Auth::id();
-        $input['date'] = date('Y-m-d');
+        $input['date'] = today();
         return $input;
+    }
+
+    public function getStatus($existJudgement)
+    {
+        $status = '出社時間登録';
+        $attendance = $this->where('user_id', Auth::id())
+                           ->where('date', today())->first();
+        if ($existJudgement) {
+            if ($attendance->start_time) {
+                $status = '退社時間登録';
+            }
+            if ($attendance->end_time) {
+                $status = '退社済み';
+            }
+            if ($attendance->absent_content) {
+                $status = '欠席';
+            }
+        }
+        return $status;
     }
 }
