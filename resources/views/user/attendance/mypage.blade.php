@@ -9,14 +9,14 @@
       <p>学習経過日数</p>
       <div class="study-hour-box clearfix">
         <div class="userinfo-box"><img src={{ Auth::user()->avatar }}></div>
-        <p class="study-hour"><span>{{ $attendance_count }}</span>日</p>
+        <p class="study-hour"><span>{{ $attendanceCount }}</span>日</p>
       </div>
     </div>
     <div class="my-info">
       <p>累計学習時間</p>
       <div class="study-hour-box clearfix">
         <div class="userinfo-box"><img src={{ Auth::user()->avatar }}></div>
-        <p class="study-hour"><span>{{ $study_time }}</span>時間</p>
+        <p class="study-hour"><span>{{ $studyTime }}</span>時間</p>
       </div>
     </div>
   </div>
@@ -37,11 +37,11 @@
         <td class="col-xs-2">{{ $attendance->date->format('m/d（D）') }}</td>
           <td class="col-xs-3">{{ $attendance->start_time ? $attendance->start_time->format('H:i'): '-' }}</td>
           <td class="col-xs-3">{{ $attendance->end_time ? $attendance->end_time->format('H:i'): '-' }}</td>
-        @if ($attendance->absent_content)
+        @if ($attendance->absent_content !== null)
           <td class="col-xs-2">欠席</td>
-        @elseif ($attendance->end_time)
+        @elseif ($attendance->end_time !== null)
           <td class="col-xs-2">出社</td>
-        @elseif($attendance->start_time)
+        @elseif($attendance->start_time !== null)
           <td class="col-xs-2">研修中</td>
         @else
           <td class="col-xs-2">-</td>

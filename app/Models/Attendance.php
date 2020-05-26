@@ -34,38 +34,40 @@ class Attendance extends Model
                     ->exists();
     }
 
-    public function attendanceSave($input, $existJudgement)
+    public function saveAttendance($input)
     {
-        if ($existJudgement) {
-            $this->where('user_id', $input['user_id'])
-                        ->where('date', $input['date'])
-                        ->first()->fill($input)->save(); 
-        } else {
-            $this->fill($input)->save();
-        }
+        $this->updateOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'date' => $input['date']
+            ],
+            $input
+        );
     }
 
-    public function inputUpdate($request)
+    public function addColumn($request)
     {
-        $input = $request->all();
-        $input['user_id'] = Auth::id();
-        $input['date'] = today();
+        $add = [
+            'user_id' => Auth::id(),
+            'date' => today()
+        ];
+        $input = $request->merge($add)->all();
         return $input;
     }
 
     public function getStatus($existJudgement)
     {
         $status = '出社時間登録';
-        $attendance = $this->where('user_id', Auth::id())
-                           ->where('date', today())->first();
         if ($existJudgement) {
-            if ($attendance->start_time) {
+            $attendance = $this->where('user_id', Auth::id())
+                               ->where('date', today())->first();
+            if ($attendance->start_time !== null) {
                 $status = '退社時間登録';
             }
-            if ($attendance->end_time) {
+            if ($attendance->end_time !== null) {
                 $status = '退社済み';
             }
-            if ($attendance->absent_content) {
+            if ($attendance->absent_content !== null) {
                 $status = '欠席';
             }
         }

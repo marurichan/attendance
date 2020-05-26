@@ -37,11 +37,10 @@ class AttendanceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function timeStore(Request $request)
+    public function storeTime(Request $request)
     {
-        $input = $this->attendance->inputUpdate($request);
-        $existJudgement = $this->attendance->existJudgement($input['date']);
-        $this->attendance->attendanceSave($input, $existJudgement);
+        $input = $this->attendance->addColumn($request);
+        $this->attendance->saveAttendance($input);
         return redirect()->route('attendance.index');
     }
 
@@ -63,9 +62,8 @@ class AttendanceController extends Controller
      */
     public function absentStore(AbsentRequest $request)
     {
-        $input = $this->attendance->inputUpdate($request);
-        $existJudgement = $this->attendance->existJudgement($input['date']);
-        $this->attendance->attendanceSave($input, $existJudgement);
+        $input = $this->attendance->addColumn($request);
+        $this->attendance->saveAttendance($input);
         return redirect()->route('attendance.index');
     }
 
@@ -89,8 +87,7 @@ class AttendanceController extends Controller
     {
         $input = $request->all();
         $input['user_id'] = Auth::id();
-        $existJudgement = $this->attendance->existJudgement($input['date']);
-        $this->attendance->attendanceSave($input, $existJudgement);
+        $this->attendance->saveAttendance($input);
         return redirect()->route('attendance.index');
     }
 
@@ -101,25 +98,16 @@ class AttendanceController extends Controller
      */
     public function showMypage()
     {
-        $user_id = Auth::id();
-        $attendances = $this->attendance->where('user_id', $user_id)
+        $userId = Auth::id();
+        $attendances = $this->attendance->where('user_id', $userId)
                                         ->orderBy('date', 'desc')->get();
-        $end_time_count = $this->attendance->where('user_id', $user_id)
-                                           ->whereNotNull('end_time')
-                                           ->count();
-        $absent_count = $this->attendance->where('user_id', $user_id)
-                                         ->whereNotNull('end_time')
-                                         ->whereNotNull('absent_content')
-                                         ->count();
-        $attendance_count = $end_time_count - $absent_count;
-        $study_time = 0;
-        foreach ($attendances as $attendance) {
-            if (!$attendance->absent_content) {
-                if ($attendance->end_time) {
-                    $study_time += $attendance->end_time->diffInHours($attendance->start_time);
-                }
-            }
+        $inAttendances = $attendances->where('end_time', '!=', null)
+                                    ->where('absent_content', null);
+        $attendanceCount = $inAttendances->count();
+        $studyTime = 0;
+        foreach ($inAttendances as $inAttendance) {
+            $studyTime += $inAttendance->end_time->diffInHours($inAttendance->start_time);
         }
-        return view('user.attendance.mypage', compact('attendances', 'attendance_count', 'study_time'));
+        return view('user.attendance.mypage', compact('attendances', 'attendanceCount', 'studyTime'));
     }
 }

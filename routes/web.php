@@ -28,7 +28,7 @@ Route::group(['prefix' => '/', 'user.', 'namespace' => 'User'], function () {
     Route::get('home', 'UserController@index')->name('home');
 
     Route::get('attendance', 'AttendanceController@index')->name('attendance.index');
-    Route::post('attendance', 'AttendanceController@timeStore')->name('attendance.timeStore');
+    Route::post('attendance', 'AttendanceController@storeTime')->name('attendance.storeTime');
     Route::get('attendance/absent', 'AttendanceController@absentCreate')->name('attendance.absentCreate');
     Route::post('attendance/absent', 'AttendanceController@absentStore')->name('attendance.absentStore');
     Route::get('attendance/modify', 'AttendanceController@modifyCreate')->name('attendance.modifyCreate');

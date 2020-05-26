@@ -5,7 +5,7 @@
 <div class="main-wrap">
   <div class="container">
     {!! Form::open(['route' => 'attendance.modifyStore', 'method' => 'POST']) !!}
-      <div class="form-group form-size-small @if ($errors->first('date')) has-error @endif">
+      <div class="form-group form-size-small @if ($errors->has('date')) has-error @endif">
         {!! Form::date('date', null, ['class' => 'form-control']) !!}
         <span class="help-block">{{ $errors->first('date') }}</span>
       </div>
