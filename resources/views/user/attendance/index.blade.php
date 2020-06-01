@@ -39,7 +39,7 @@
   @if ($status === '出社時間登録')
     <div class="register-text-wrap"><p>{{ \Carbon\Carbon::now()->format('H:i') }} で出社時間を登録しますか？</p></div>
     <div class="register-btn-wrap">
-      {!! Form::open(['route' => 'attendance.storeTime', 'method' =>'POST']) !!}
+      {!! Form::open(['route' => 'attendance.storeStartTime', 'method' =>'POST']) !!}
         {!! Form::input('hidden', 'start_time', \Carbon\Carbon::now(), ['id' => 'date-time-target']) !!}
         <a href="#close" class="cancel-btn">Cancel</a>
         {!! Form::input('submit', '', 'Yes', ['class' => 'yes-btn']) !!}
@@ -48,7 +48,7 @@
   @else
     <div class="register-text-wrap"><p>{{ \Carbon\Carbon::now()->format('H:i') }} で退社時間を登録しますか？</p></div>
     <div class="register-btn-wrap">
-      {!! Form::open(['route' => 'attendance.storeTime', 'method' =>'POST']) !!}
+      {!! Form::open(['route' => 'attendance.storeEndTime', 'method' =>'POST']) !!}
         {!! Form::input('hidden', 'end_time', \Carbon\Carbon::now(), ['id' => 'date-time-target']) !!}
         <a href="#close" class="cancel-btn">Cancel</a>
         {!! Form::input('submit', '', 'Yes', ['class' => 'yes-btn']) !!}

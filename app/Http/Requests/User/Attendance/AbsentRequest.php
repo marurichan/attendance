@@ -22,9 +22,8 @@ class AbsentRequest extends FormRequest
      *
      * @return array
      */
-    public function rules(Request $request)
+    public function rules()
     {
-        $request = $request->all();
         return [
             'absent_content' => 'required|max:500'
         ];

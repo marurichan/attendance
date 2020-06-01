@@ -20,7 +20,7 @@ class CreateAttendanceTable extends Migration
             $table->timestamp('end_time')->nullable();
             $table->text('absent_content')->nullable();
             $table->text('modify_content')->nullable();
-            $table->timestamp('date')->useCurrent();
+            $table->timestamp('date')->nullable();
             $table->timestamps();
         });
     }

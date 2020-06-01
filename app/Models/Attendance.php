@@ -17,8 +17,6 @@ class Attendance extends Model
         'end_time',
         'absent_content',
         'modify_content',
-        'updated_at',
-        'created_at'
     ];
 
     protected $dates = [
@@ -27,40 +25,51 @@ class Attendance extends Model
         'end_time'
     ];
 
-    public function existJudgement($date)
-    {
-        return $this->where('user_id', Auth::id())
-                    ->where('date', $date)
-                    ->exists();
-    }
-
-    public function saveAttendance($input)
+    public function saveAttendance($inputs, $userId, $date)
     {
         $this->updateOrCreate(
             [
-                'user_id' => Auth::id(),
-                'date' => $input['date']
+                'user_id' => $userId,
+                'date' => $date
             ],
-            $input
+            $inputs
         );
     }
 
-    public function addColumn($request)
+    public function startSaveAttendance($inputs, $userId)
     {
-        $add = [
-            'user_id' => Auth::id(),
-            'date' => today()
-        ];
-        $input = $request->merge($add)->all();
-        return $input;
+        $attendance = $this->where('user_id', $userId)
+                           ->where('date', $inputs['date']);
+        if ($attendance->start_time === null) {
+            $this->saveAttendance($inputs, $userId, $inputs['date']);
+        }
     }
 
-    public function getStatus($existJudgement)
+    public function endSaveAttendance($inputs, $userId)
+    {
+        $attendance = $this->where('user_id', $userId)
+                           ->where('date', $inputs['date']);
+        if ($attendance->start_time !== null && $attendance->end_time === null) {
+            $this->saveAttendance($inputs, $userId, $inputs['date']);
+        }
+    }
+
+    public function addColumn($request, $userId)
+    {
+        $add = [
+            'user_id' => $userId,
+            'date' => today()
+        ];
+        $inputs = $request->merge($add)->all();
+        return $inputs;
+    }
+
+    public function getStatus()
     {
         $status = '出社時間登録';
-        if ($existJudgement) {
-            $attendance = $this->where('user_id', Auth::id())
-                               ->where('date', today())->first();
+        $attendance = $this->where('user_id', Auth::id())
+                           ->where('date', today())->first();
+        if ($attendance !== null) {
             if ($attendance->start_time !== null) {
                 $status = '退社時間登録';
             }
@@ -72,5 +81,16 @@ class Attendance extends Model
             }
         }
         return $status;
+    }
+
+    public function getUserAttendances($userId)
+    {
+        return $attendances = $this->where('user_id', $userId)
+                                   ->orderBy('date', 'desc')->get();
+    }
+
+    public function calcStudyTime()
+    {
+        return $this->end_time->diffInHours($this->start_time);
     }
 }

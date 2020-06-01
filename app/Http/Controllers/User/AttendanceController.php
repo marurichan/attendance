@@ -27,7 +27,7 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $status = $this->attendance->getStatus($this->attendance->existJudgement(today()));
+        $status = $this->attendance->getStatus();
         return view('user.attendance.index', compact('status'));
     }
 
@@ -37,10 +37,25 @@ class AttendanceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function storeTime(Request $request)
+    public function storeStartTime(Request $request)
     {
-        $input = $this->attendance->addColumn($request);
-        $this->attendance->saveAttendance($input);
+        $userId = Auth::id();
+        $inputs = $this->attendance->addColumn($request, $userId);
+        $this->attendance->startSaveAttendance($inputs, $userId, $inputs['date']);
+        return redirect()->route('attendance.index');
+    }
+
+    /**
+     * 勤怠登録
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeEndTime(Request $request)
+    {
+        $userId = Auth::id();
+        $inputs = $this->attendance->addColumn($request, $userId);
+        $this->attendance->endSaveAttendance($inputs, $userId, $inputs['date']);
         return redirect()->route('attendance.index');
     }
 
@@ -62,8 +77,9 @@ class AttendanceController extends Controller
      */
     public function absentStore(AbsentRequest $request)
     {
-        $input = $this->attendance->addColumn($request);
-        $this->attendance->saveAttendance($input);
+        $userId = Auth::id();
+        $inputs = $this->attendance->addColumn($request, $userId);
+        $this->attendance->saveAttendance($inputs, $userId, $inputs['date']);
         return redirect()->route('attendance.index');
     }
 
@@ -85,9 +101,10 @@ class AttendanceController extends Controller
      */
     public function modifyStore(ModifyRequest $request)
     {
-        $input = $request->all();
-        $input['user_id'] = Auth::id();
-        $this->attendance->saveAttendance($input);
+        $userId = Auth::id();
+        $inputs = $request->all();
+        $inputs['user_id'] = $userId;
+        $this->attendance->saveAttendance($inputs, $userId, $inputs['date']);
         return redirect()->route('attendance.index');
     }
 
@@ -99,14 +116,13 @@ class AttendanceController extends Controller
     public function showMypage()
     {
         $userId = Auth::id();
-        $attendances = $this->attendance->where('user_id', $userId)
-                                        ->orderBy('date', 'desc')->get();
+        $attendances = $this->attendance->getUserAttendances($userId);
         $inAttendances = $attendances->where('end_time', '!=', null)
-                                    ->where('absent_content', null);
+                                     ->where('absent_content', null);
         $attendanceCount = $inAttendances->count();
         $studyTime = 0;
         foreach ($inAttendances as $inAttendance) {
-            $studyTime += $inAttendance->end_time->diffInHours($inAttendance->start_time);
+            $studyTime += $inAttendance->calcStudyTime();
         }
         return view('user.attendance.mypage', compact('attendances', 'attendanceCount', 'studyTime'));
     }

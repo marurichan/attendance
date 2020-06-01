@@ -22,9 +22,8 @@ class ModifyRequest extends FormRequest
      *
      * @return array
      */
-    public function rules(Request $request)
+    public function rules()
     {
-        $request = $request->all();
         return [
             'date' => 'required|before_or_equal:now',
             'modify_content' => 'required|max:500'
